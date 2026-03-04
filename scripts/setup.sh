@@ -292,14 +292,19 @@ else
   echo ""
 
   # Prompt for Anthropic API key (optional — for agents that use Anthropic models)
-  log_info "Anthropic API key (optional, for agents using Claude models):"
-  read -sp "  API key (leave empty to skip): " ANTHROPIC_API_KEY
-  echo
-  ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-  if [ -n "$ANTHROPIC_API_KEY" ]; then
-    log_success "Anthropic API key set"
+  # Pick up from environment if already set
+  if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+    log_success "Anthropic API key detected from environment"
   else
-    log_info "Skipped — agents will use in-cluster model only"
+    log_info "Anthropic API key (optional, for agents using Claude models):"
+    read -sp "  API key (leave empty to skip): " ANTHROPIC_API_KEY
+    echo
+    ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    if [ -n "$ANTHROPIC_API_KEY" ]; then
+      log_success "Anthropic API key set"
+    else
+      log_info "Skipped — agents will use in-cluster model only"
+    fi
   fi
   echo ""
 
