@@ -145,11 +145,11 @@ spec:
             drop:
             - ALL
       - name: gateway
-        image: quay.io/sallyom/openclaw:latest
+        image: quay.io/aicatalyst/openclaw:latest
         imagePullPolicy: Always
         command:
         - node
-        - /app/dist/index.js
+        - /opt/app-root/src/openclaw.mjs
         - gateway
         - run
         - --bind
@@ -169,8 +169,10 @@ spec:
           value: /home/node
         - name: OPENCLAW_CONFIG_DIR
           value: /home/node/.openclaw
+        - name: OPENCLAW_STATE_DIR
+          value: /home/node/.openclaw
         - name: OPENCLAW_CLI_PATH
-          value: /app/dist/index.js
+          value: /opt/app-root/src/openclaw.mjs
         - name: TERM
           value: xterm-256color
         - name: NODE_ENV
