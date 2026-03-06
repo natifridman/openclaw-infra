@@ -25,27 +25,32 @@ The OpenClaw gateway runs happily under `restricted-v2` with no custom SCC requi
 
 ### The pod architecture
 
-```
-                     ┌─── OpenShift Route (TLS) ───┐
-                     │                             │
-                     ▼                             │
-              ┌─────────────┐                      │
-              │ oauth-proxy │ ◄── OpenShift OAuth  │
-              │  (port 8443)│                      │
-              └──────┬──────┘                      │
-                     │ authenticated               │
-                     ▼                             │
-              ┌─────────────┐                      │
-              │   gateway   │ ◄── loopback only    │
-              │ (port 18789)│     read-only root   │
-              └─────────────┘     all caps dropped │
-              ┌─────────────┐                      │
-              │ init-config │ ◄── runs at start    │
-              │ (init cont) │   copies config→PVC  │
-              └─────────────┘                      │
-                                                   │
-    PVC (/home/node/.openclaw) ◄───────────────────┘
-      Config, sessions, agent workspaces
+```mermaid
+graph TD
+    Route["OpenShift Route (TLS)"]
+
+    Route --> OAuthProxy
+
+    subgraph Pod
+        OAuthProxy["oauth-proxy<br/><i>port 8443</i>"]
+        Gateway["gateway<br/><i>port 18789</i>"]
+        InitConfig["init-config<br/><i>init container</i>"]
+
+        OAuthProxy -- "Gateway Token" --> Gateway
+    end
+
+    OAuth["OpenShift OAuth"] -.-> OAuthProxy
+    InitConfig -- "copies config → PVC<br/>on startup" --> PVC
+
+    PVC[("PVC<br/>/home/node/.openclaw<br/>Config, sessions,<br/>agent workspaces")]
+    Gateway --> PVC
+
+    style Route fill:#2d6a4f,color:#fff
+    style OAuthProxy fill:#264653,color:#fff
+    style Gateway fill:#264653,color:#fff
+    style InitConfig fill:#6c757d,color:#fff,stroke-dasharray: 5 5
+    style OAuth fill:#e76f51,color:#fff
+    style PVC fill:#e9c46a,color:#000
 ```
 
 All containers run under `restricted-v2`. No custom SCC. No cluster-admin for the workload itself.
