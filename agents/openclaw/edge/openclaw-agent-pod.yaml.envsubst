@@ -45,6 +45,8 @@ spec:
       image: ${OPENCLAW_IMAGE}
       command: ["node", "openclaw.mjs", "gateway", "--allow-unconfigured"]
       env:
+        - name: HOME
+          value: /home/node
         - name: NODE_ENV
           value: production
         - name: OPENCLAW_STATE_DIR
